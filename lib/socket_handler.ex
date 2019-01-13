@@ -26,13 +26,15 @@ defmodule PlugEx.SocketHandler do
 
   defp websocket_handle_command({:ok, json}, state) do
     Logger.info("WebSocket handle json #{inspect(json)}")
-    {:reply, {:text, "hello world"}, state}
+    {:ok, result} = Absinthe.run(json["query"], Gqlone.Schema)
+    result |> inspect() |> IO.puts
+    {:reply, {:text, Jason.encode!(result)}, state}
   end
 
   defp websocket_handle_command({:error, error}, state) do
     Logger.info("WebSocket handle json error  #{inspect(error)}")
 
-    {:reply, {:text, Jason.encode!(%{"invalid_json" => error.data}), state}}
+    {:reply, {:text, Jason.encode!(%{"invalid_json" => error.data})}, state}
   end
 
   def terminate(_reason, _req, _state) do
@@ -40,8 +42,5 @@ defmodule PlugEx.SocketHandler do
     :ok
   end
 
-  defp format_self do
-    inspect(self())
-  end
-
+  defp format_self, do: inspect(self())
 end
