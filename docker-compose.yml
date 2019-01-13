@@ -1,0 +1,7 @@
+version: '3.5'
+
+services:
+  web:
+    image: "plug_ex:latest"
+    ports:
+      - "9090:9090"
