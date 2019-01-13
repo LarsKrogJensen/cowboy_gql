@@ -3,12 +3,12 @@ defmodule PlugEx.SocketHandler do
 
   @behaviour :cowboy_websocket
   def init(req, state) do
-    Logger.info("Init")
+    Logger.info("Init #{format_self()}")
     {:cowboy_websocket, req, state}
   end
 
   def websocket_init(_state) do
-    Logger.info("WebSocket.init")
+    Logger.info("WebSocket.init #{format_self()}")
     state = %{}
     {:ok, state}
   end
@@ -18,24 +18,30 @@ defmodule PlugEx.SocketHandler do
   end
 
   def websocket_handle({:text, message}, state) do
-    Logger.info("WebSocket handle text #{message}")
-    {:ok, json} = Jason.decode(message)
-    IO.puts inspect(json)
-    websocket_handle({:json, json}, state)
-    # {:reply, {:text, "hello world"}, state}
+    Logger.info("WebSocket handle text #{message} #{format_self()}")
+    json = Jason.decode(message)
+    IO.puts(inspect(json))
+    websocket_handle_command(json, state)
   end
 
-  def websocket_handle({:json, json}, state) do
-    Logger.info("WebSocket handle json #{json}")
+  defp websocket_handle_command({:ok, json}, state) do
+    Logger.info("WebSocket handle json #{inspect(json)}")
     {:reply, {:text, "hello world"}, state}
   end
 
-  # def websocket_info(_info, state) do
-  #     {:reply, state}
-  # end
+  defp websocket_handle_command({:error, error}, state) do
+    Logger.info("WebSocket handle json error  #{inspect(error)}")
+
+    {:reply, {:text, Jason.encode!(%{"invalid_json" => error.data}), state}}
+  end
 
   def terminate(_reason, _req, _state) do
     Logger.info("WebSocket terminate")
     :ok
   end
+
+  defp format_self do
+    inspect(self())
+  end
+
 end
