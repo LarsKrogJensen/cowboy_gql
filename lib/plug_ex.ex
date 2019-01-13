@@ -17,7 +17,12 @@ defmodule PlugEx do
           port: port,
           dispatch: dispatch()
         ]
-      )
+      ),
+      %{
+        id: Phoenix.PubSub.PG2,
+        start: {Phoenix.PubSub.PG2, :start_link, [:time_tracker, []]}
+      },
+      {PlugEx.ClockServer, %{}}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)

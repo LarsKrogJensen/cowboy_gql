@@ -1,5 +1,6 @@
 defmodule PlugEx.SocketHandler do
   require Logger
+  alias Phoenix.PubSub
 
   @behaviour :cowboy_websocket
   def init(req, state) do
@@ -7,14 +8,15 @@ defmodule PlugEx.SocketHandler do
     {:cowboy_websocket, req, state}
   end
 
-  def websocket_init(_state) do
+  def websocket_init(state) do
     Logger.info("WebSocket.init #{format_self()}")
-    state = %{}
+    PubSub.subscribe(:time_tracker, "time_tick")
     {:ok, state}
   end
 
-  def websocket_info(info, state) do
-    {:reply, {:text, info}, state}
+  def websocket_info({:time_tick, time}, state) do
+    Logger.info("Got message #{inspect(time)} #{inspect(self())}")
+    {:reply, {:text, Jason.encode!(%{time: time})}, state}
   end
 
   def websocket_handle({:text, message}, state) do

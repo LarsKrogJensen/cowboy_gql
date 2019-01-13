@@ -30,6 +30,7 @@ defmodule PlugEx.MixProject do
       {:absinthe, "~> 1.4"},
       {:plug_cowboy, "~> 2.0"},
       {:distillery, "~> 2.0"},
+      {:phoenix_pubsub, "~> 1.1.0"},
       {:remix, "~> 0.0.1", only: :dev}
     ]
   end
